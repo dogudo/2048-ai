@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
+#include <string.h>
 
 bool full(int board[4][4]) {
     bool full = true;
@@ -78,9 +79,10 @@ void draw(int board[4][4]) {
     }
 }
 
-void move(char c, int board[4][4]) {
+int move(char c, int board[4][4]) {
     int merged[4][4] = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
     int aux;
+    int score = 0;
     if (c == 'w') {
         for (int i = 1; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -91,6 +93,7 @@ void move(char c, int board[4][4]) {
                     i--;
                 }
                 if (i > 0 && board[i-1][j] == board[i][j] && merged[i][j] == 0) {
+                    score += 2*board[i][j];
                     board[i-1][j] = 2*board[i][j];
                     board[i][j] = 0;
                     merged[i][j] = 1;
@@ -109,6 +112,7 @@ void move(char c, int board[4][4]) {
                     i++;
                 }
                 if (i < 3 && board[i+1][j] == board[i][j] && merged[i][j] == 0) {
+                    score += 2*board[i][j];
                     board[i+1][j] = 2*board[i][j];
                     board[i][j] = 0;
                     merged[i][j] = 1;
@@ -127,6 +131,7 @@ void move(char c, int board[4][4]) {
                     j--;
                 }
                 if (j > 0 && board[i][j-1] == board[i][j] && merged[i][j] == 0) {
+                    score += 2*board[i][j];
                     board[i][j-1] = 2*board[i][j];
                     board[i][j] = 0;
                     merged[i][j] = 1;
@@ -145,6 +150,7 @@ void move(char c, int board[4][4]) {
                     j++;
                 }
                 if (j < 3 && board[i][j+1] == board[i][j] && merged[i][j] == 0) {
+                    score += 2*board[i][j];
                     board[i][j+1] = 2*board[i][j];
                     board[i][j] = 0;
                     merged[i][j] = 1;
@@ -154,6 +160,7 @@ void move(char c, int board[4][4]) {
         }
         spawn(board);
     }
+    return score;
 }
 
 bool over(int board[4][4]) {
@@ -178,6 +185,66 @@ bool over(int board[4][4]) {
     return over;
 }
 
+int maxTile(int board[4][4]) { // currently unused
+    int max = 0;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (board[i][j] > max) {
+                max = board[i][j];
+            }
+        }
+    }
+    return max;
+}
+
+double ai(int board[4][4], char c, int n) {
+    double avgScore = 0;
+    int aux[4][4];
+    
+    for (int i = 0; i < n; i++) {
+        memcpy(aux, board, 4*4*sizeof(int));
+        
+        while (!over(aux)) {
+            switch(rand() % 4) {
+                case 0:
+                    avgScore += move('w', aux);
+                    break;
+                case 1:
+                    avgScore += move('s', aux);
+                    break;
+                case 2:
+                    avgScore += move('a', aux);
+                    break;
+                case 3:
+                    avgScore += move('d', aux);
+                    break;
+            }
+        }
+    }
+    return avgScore/n;
+}
+
+void bestMove(int board[4][4], int n) {
+    int bestScore = 0;
+    double score;
+    char bestMove;
+    char moves[4] = {'w','s','a','d'};
+
+    for (int i = 0; i < 4; i++) {
+        int aux[4][4];
+        memcpy(aux, board, 4*4*sizeof(int));
+        score = move(moves[i], aux);
+        if (memcmp(aux, board, 4*4*sizeof(int)) != 0) {
+            score += ai(aux, moves[i], n);
+            if (score > bestScore) {
+                bestMove = moves[i];
+                bestScore = score;
+            }
+        }
+    }
+    move(bestMove, board);
+}
+
 int main(int argc, char const *argv[]) {
     int board[4][4];
     char c;
@@ -186,10 +253,13 @@ int main(int argc, char const *argv[]) {
     draw(board);
 
     while (!over(board)) {
-      c = getchar();
-      getchar();
-      move(c, board);
-      draw(board);
+        // c = getchar();
+        // getchar();
+        // move(c, board));
+        
+        bestMove(board, 1000);
+        printf("\n");
+        draw(board);
     }
 
     return 0;
