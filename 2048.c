@@ -16,22 +16,32 @@ bool full(int board[4][4]) {
 }
 
 void spawn(int board[4][4]) {
-    bool spawn = false;
+    struct pair {
+        int i;
+        int j;
+    };
+    
+    struct pair freeTiles[16];
+    
     int i, j;
-    srand(time(NULL));
-    if (!full(board)) {
-        while (!spawn) {
-            i = rand() % 4;
-            j = rand() % 4;
+    int k = 0;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
             if (board[i][j] == 0) {
-                board[i][j] = rand() % 10 == 0 ? 4 : 2;
-                spawn = true;
+                freeTiles[k].i = i;
+                freeTiles[k].j = j;
+                k++;
             }
         }
+    }
+    if (k > 0) {
+        int randomFreeTile = rand() % k;
+        board[freeTiles[randomFreeTile].i][freeTiles[randomFreeTile].j] = rand() % 10 == 0 ? 4 : 2;
     }
 }
 
 void start(int board[4][4]) {
+    srand(time(NULL));
     for (int i = 0; i < 4; i++) {
       for (int j = 0; j < 4; j++) {
         board[i][j] = 0;
