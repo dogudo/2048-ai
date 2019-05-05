@@ -69,6 +69,7 @@ void draw(int board[4][4]) {
 }
 
 void move(char c, int board[4][4]) {
+    int merged[4][4] = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
     int aux;
     if (c == 'w') {
         for (int i = 1; i < 4; i++) {
@@ -79,9 +80,10 @@ void move(char c, int board[4][4]) {
                     board[i][j] = 0;
                     i--;
                 }
-                if (i > 0 && board[i-1][j] == board[i][j]) {
+                if (i > 0 && board[i-1][j] == board[i][j] && merged[i][j] == 0) {
                     board[i-1][j] = 2*board[i][j];
                     board[i][j] = 0;
+                    merged[i][j] = 1;
                 }
                 i = aux;
             }
@@ -96,9 +98,10 @@ void move(char c, int board[4][4]) {
                     board[i][j] = 0;
                     i++;
                 }
-                if (i < 3 && board[i+1][j] == board[i][j]) {
+                if (i < 3 && board[i+1][j] == board[i][j] && merged[i][j] == 0) {
                     board[i+1][j] = 2*board[i][j];
                     board[i][j] = 0;
+                    merged[i][j] = 1;
                 }
                 i = aux;
             }
@@ -113,9 +116,10 @@ void move(char c, int board[4][4]) {
                     board[i][j] = 0;
                     j--;
                 }
-                if (j > 0 && board[i][j-1] == board[i][j]) {
+                if (j > 0 && board[i][j-1] == board[i][j] && merged[i][j] == 0) {
                     board[i][j-1] = 2*board[i][j];
                     board[i][j] = 0;
+                    merged[i][j] = 1;
                 }
                 j = aux;
             }
@@ -130,9 +134,10 @@ void move(char c, int board[4][4]) {
                     board[i][j] = 0;
                     j++;
                 }
-                if (j < 3 && board[i][j+1] == board[i][j]) {
+                if (j < 3 && board[i][j+1] == board[i][j] && merged[i][j] == 0) {
                     board[i][j+1] = 2*board[i][j];
                     board[i][j] = 0;
+                    merged[i][j] = 1;
                 }
                 j = aux;
             }
